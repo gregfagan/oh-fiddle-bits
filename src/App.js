@@ -3,35 +3,63 @@ import './App.css'
 
 import audio from './audio'
 
+const frequencyStep = 10
+
 class App extends Component {
   constructor(props) {
     super(props)
 
     this.toggleTone = this.toggleTone.bind(this)
+    this.increaseFrequency = this.increaseFrequency.bind(this)
+    this.decreaseFrequency = this.decreaseFrequency.bind(this)
 
     this.state = {
-      playingTone: false
+      tone: {
+        frequency: 440,
+        playing: false
+      }
     }
   }
 
   componentDidMount() {
     audio.init()
+    audio.setFrequency(this.state.tone.frequency)
   }
 
   toggleTone() {
     this.setState(prevState => {
-      const playingTone = !prevState.playingTone
+      const tone = prevState.tone
+      const playing = !tone.playing
 
-      if (playingTone) {
-        audio.start()
+      if (playing) {
+        audio.start(tone.frequency)
       } else {
         audio.stop()
       }
 
       return {
-        playingTone
+        tone: { ...tone, playing }
       }
     })
+  }
+
+  updateFrequency(amount) {
+    this.setState(prevState => {
+      const tone = prevState.tone
+      const frequency = tone.frequency + amount
+      audio.setFrequency(frequency)
+      return {
+        tone: { ...tone, frequency }
+      }
+    })
+  }
+
+  increaseFrequency() {
+    this.updateFrequency(frequencyStep)
+  }
+
+  decreaseFrequency() {
+    this.updateFrequency(-frequencyStep)
   }
 
   render() {
@@ -43,8 +71,11 @@ class App extends Component {
         <section className="App-display" />
         <section className="App-controls">
           <button onClick={this.toggleTone}>
-            {this.state.playingTone ? 'Stop' : 'Play'} A4 Tone
+            {this.state.tone.playing ? 'Stop' : 'Play'} Tone
           </button>
+          <span>{this.state.tone.frequency}</span>
+          <button onClick={this.increaseFrequency}>+</button>
+          <button onClick={this.decreaseFrequency}>-</button>
         </section>
       </div>
     )

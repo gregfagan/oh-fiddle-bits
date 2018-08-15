@@ -4,11 +4,14 @@ let oscillator
 function init() {
   audioContext = new window.AudioContext()
   oscillator = audioContext.createOscillator()
-  oscillator.frequency.value = 440
   oscillator.start()
 }
 
-function start() {
+function setFrequency(f) {
+  oscillator.frequency.value = f
+}
+
+function start(frequency) {
   oscillator.connect(audioContext.destination)
 }
 
@@ -18,6 +21,7 @@ function stop() {
 
 export default {
   init,
+  setFrequency,
   start,
   stop
 }
