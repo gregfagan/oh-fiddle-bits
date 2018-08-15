@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import './App.css'
 
+import FrequencySlider from './FrequencySlider'
 import audio from './audio'
 
 const frequencyStep = 10
@@ -68,12 +69,11 @@ class App extends Component {
         <header className="App-header">
           <h1 className="App-title">Fiddle Tuner</h1>
         </header>
-        <section className="App-display" />
+        <FrequencySlider frequency={this.state.tone.frequency} />
         <section className="App-controls">
           <button onClick={this.toggleTone}>
             {this.state.tone.playing ? 'Stop' : 'Play'} Tone
           </button>
-          <span>{this.state.tone.frequency}</span>
           <button onClick={this.increaseFrequency}>+</button>
           <button onClick={this.decreaseFrequency}>-</button>
         </section>

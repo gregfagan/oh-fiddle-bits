@@ -8,7 +8,8 @@
     "prettier": "^1.14.2",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "react-window-size": "^1.2.0"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
