@@ -1,43 +1,63 @@
-import React from 'react'
-import windowSize from 'react-window-size'
+import React, { Component } from 'react'
+import { withContentRect } from 'react-measure'
 
-const heightFactor = 0.25 // percent of window height
-const needleWidth = 10 // pixels
-const needleHeightFactor = 0.4 // percent of slider height
-const textMargin = 10
-const textHeightFactor = 0.25
-
-function FrequencySlider(props) {
-  const { frequency, windowWidth, windowHeight } = props
-  const height = heightFactor * windowHeight
-
-  return (
-    <svg height={height} width={windowWidth}>
-      <rect fill="white" width="100%" height="100%" />
-      <Needle containerWidth={windowWidth} containerHeight={height} />
-      <text
-        x={textMargin}
-        y={height - textMargin}
-        style={{ font: `bold ${height * textHeightFactor}px sans-serif` }}
-      >
-        {frequency}
-      </text>
-    </svg>
-  )
+const fillContainer = {
+  width: '100%',
+  height: '100%',
 }
 
-function Needle({ containerWidth, containerHeight }) {
-  const needleHeight = containerHeight * needleHeightFactor
-  return (
-    <rect
-      fill="#FF530D"
-      opacity="50%"
-      width={needleWidth}
-      height={needleHeight}
-      x={(containerWidth - needleWidth) * 0.5}
-      y={containerHeight - needleHeight}
-    />
-  )
+class FrequencySlider extends Component {
+  constructor(props) {
+    super(props)
+    this.setCanvasRef = element => {
+      this.canvasEl = element
+      this.props.measureRef(element)
+    }
+  }
+
+  componentDidUpdate() {
+    this.renderGraphics()
+  }
+
+  render() {
+    const { contentRect } = this.props
+    const { width, height } = contentRect.bounds
+    return (
+      <canvas
+        ref={this.setCanvasRef}
+        style={fillContainer}
+        width={width}
+        height={height}
+      />
+    )
+  }
+
+  renderGraphics() {
+    if (!this.canvasEl) return
+    const ctx = this.canvasEl.getContext('2d')
+    const { frequency, contentRect } = this.props
+    const { width, height } = contentRect.bounds
+
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0, 0, width, height)
+
+    // needle
+    const halfWidth = 0.5 * width
+    const halfHeight = 0.5 * height
+    ctx.strokeStyle = 'red'
+    ctx.lineWidth = 0.0075 * width
+    ctx.beginPath()
+    ctx.moveTo(halfWidth, halfHeight)
+    ctx.lineTo(halfWidth, height)
+    ctx.closePath()
+    ctx.stroke()
+
+    // numeric frequency label
+    const margin = 0.1 * height
+    ctx.font = `${0.33 * height}px sans`
+    ctx.fillStyle = 'black'
+    ctx.fillText(frequency, margin, height - margin)
+  }
 }
 
-export default windowSize(FrequencySlider)
+export default withContentRect('bounds')(FrequencySlider)
