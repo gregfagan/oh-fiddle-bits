@@ -6,6 +6,15 @@ const fillContainer = {
   height: '100%',
 }
 
+function deviceScaledBounds(bounds) {
+  const ratio = window.devicePixelRatio
+
+  return {
+    width: Math.round(ratio * bounds.right) - Math.round(ratio * bounds.left),
+    height: Math.round(ratio * bounds.bottom) - Math.round(ratio * bounds.top),
+  }
+}
+
 class FrequencySlider extends Component {
   constructor(props) {
     super(props)
@@ -20,23 +29,18 @@ class FrequencySlider extends Component {
   }
 
   render() {
-    const { contentRect } = this.props
-    const { width, height } = contentRect.bounds
-    return (
-      <canvas
-        ref={this.setCanvasRef}
-        style={fillContainer}
-        width={width}
-        height={height}
-      />
-    )
+    return <canvas ref={this.setCanvasRef} style={fillContainer} />
   }
 
   renderGraphics() {
-    if (!this.canvasEl) return
+    const { canvasEl } = this
+    if (!canvasEl) return
     const ctx = this.canvasEl.getContext('2d')
     const { frequency, contentRect } = this.props
-    const { width, height } = contentRect.bounds
+    const { width, height } = deviceScaledBounds(contentRect.bounds)
+
+    canvasEl.width = width
+    canvasEl.height = height
 
     ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, width, height)
@@ -54,7 +58,7 @@ class FrequencySlider extends Component {
 
     // numeric frequency label
     const margin = 0.1 * height
-    ctx.font = `${0.33 * height}px sans`
+    ctx.font = `bold ${0.33 * height}px sans-serif`
     ctx.fillStyle = 'black'
     ctx.fillText(frequency, margin, height - margin)
   }
