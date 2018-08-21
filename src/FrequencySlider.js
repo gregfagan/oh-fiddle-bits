@@ -66,23 +66,41 @@ class FrequencySlider extends Component {
     // Semitone marks
     const pixelsPerCent = width / centsOnScale
     const centsFromCenterOfScale = deltaCents(frequency, centerScale)
-    const centsFromCenterOfScreen = centsFromCenterOfScale % 100
-    const centerOfScreenSemitone =
-      centerSemitone + Math.floor(centsFromCenterOfScale / 100)
-    ctx.strokeStyle = 'gray'
-    ctx.lineWidth = needleWidth / 2
+    const semitonesFromCenter = Math.floor((centsFromCenterOfScale + 50) / 100)
+    const semitoneNearestCenter = centerSemitone + semitonesFromCenter
+    const centsFromCenterOfScreen =
+      centsFromCenterOfScale - semitonesFromCenter * 100
+
+    ctx.textAlign = 'center'
     ctx.font = `bold ${0.1 * height}px sans-serif`
     ctx.fillStyle = 'gray'
-    ctx.textAlign = 'center'
+    ctx.strokeStyle = 'gray'
     for (let i = -2; i <= 2; i++) {
+      // Semitone Tick
+      ctx.lineWidth = needleWidth / 2
       const x = halfWidth - (centsFromCenterOfScreen + 100 * i) * pixelsPerCent
       ctx.beginPath()
       ctx.moveTo(x, height * 0.67)
       ctx.lineTo(x, height)
       ctx.closePath()
       ctx.stroke()
-      const name = semitoneNames[centerOfScreenSemitone - i]
+
+      // Semitone label
+      const name = semitoneNames[semitoneNearestCenter - i]
       ctx.fillText(name, x, height * 0.64)
+
+      // 10 cent division ticks
+      ctx.lineWidth = needleWidth / 3
+      if (i !== -2) {
+        for (let j = 1; j <= 9; j++) {
+          const xt = x + j * 10 * pixelsPerCent
+          ctx.beginPath()
+          ctx.moveTo(xt, height * 0.9)
+          ctx.lineTo(xt, height)
+          ctx.closePath()
+          ctx.stroke()
+        }
+      }
     }
 
     // numeric frequency label
