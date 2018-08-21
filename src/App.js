@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 
 import FrequencySlider from './FrequencySlider'
-import audio from './audio'
+import toneGenerator from './audio'
 
 const frequencyStep = 10
 
@@ -59,8 +59,8 @@ class App extends Component {
   }
 
   componentDidMount() {
-    audio.init()
-    audio.setFrequency(this.state.tone.frequency)
+    toneGenerator.init()
+    toneGenerator.setFrequency(this.state.tone.frequency)
   }
 
   toggleTone() {
@@ -69,9 +69,9 @@ class App extends Component {
       const playing = !tone.playing
 
       if (playing) {
-        audio.start(tone.frequency)
+        toneGenerator.start()
       } else {
-        audio.stop()
+        toneGenerator.stop()
       }
 
       return {
@@ -84,7 +84,7 @@ class App extends Component {
     this.setState(prevState => {
       const tone = prevState.tone
       const frequency = tone.frequency + amount
-      audio.setFrequency(frequency)
+      toneGenerator.setFrequency(frequency)
       return {
         tone: { ...tone, frequency },
       }
