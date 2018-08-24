@@ -1,16 +1,21 @@
 import React, { Component } from 'react'
+import styled from 'styled-components'
 import { withContentRect } from 'react-measure'
 
-import { deltaCents, semitoneNames } from './audio.js'
+import { deltaCents, notes } from '../audio'
 
 const centerScale = 440 // A4
-const centerSemitone = semitoneNames.indexOf('A4')
+const centerSemitone = notes.indexOf('A4')
 const centsOnScale = 325
 
-const fillContainer = {
-  width: '100%',
-  height: '100%',
-}
+const Container = styled.div`
+  flex-grow: 1;
+`
+
+const Canvas = styled.canvas`
+  width: 100%;
+  height: 100%;
+`
 
 function deviceScaledBounds(bounds) {
   const ratio = window.devicePixelRatio
@@ -26,7 +31,6 @@ class FrequencySlider extends Component {
     super(props)
     this.setCanvasRef = element => {
       this.canvasEl = element
-      this.props.measureRef(element)
     }
   }
 
@@ -35,7 +39,11 @@ class FrequencySlider extends Component {
   }
 
   render() {
-    return <canvas ref={this.setCanvasRef} style={fillContainer} />
+    return (
+      <Container innerRef={this.props.measureRef}>
+        <Canvas innerRef={this.setCanvasRef} />
+      </Container>
+    )
   }
 
   renderGraphics() {
@@ -86,7 +94,7 @@ class FrequencySlider extends Component {
       ctx.stroke()
 
       // Semitone label
-      const name = semitoneNames[semitoneNearestCenter - i]
+      const name = notes[semitoneNearestCenter - i]
       ctx.fillText(name, x, height * 0.64)
 
       // 10 cent division ticks
@@ -109,7 +117,7 @@ class FrequencySlider extends Component {
     ctx.fillStyle = 'black'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
-    ctx.fillText(frequency, margin, margin)
+    ctx.fillText(frequency.toFixed(2), margin, margin)
   }
 }
 
