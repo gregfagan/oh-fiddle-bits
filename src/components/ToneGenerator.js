@@ -1,42 +1,10 @@
-import React, { Component } from 'react'
-import styled from 'styled-components'
+import React, { Component, Fragment } from 'react'
 
+import ControlledDisplay, { Button } from './ControlledDisplay'
 import FrequencySlider from './FrequencySlider'
 import { createToneGenerator, addCents } from '../audio'
 
 const centStep = 10
-
-const Container = styled.div`
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-`
-
-const Display = styled.div`
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-  min-height: 0;
-  display: flex;
-`
-
-const Controls = styled.div`
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-  min-height: 0;
-  padding: 20px;
-`
-
-const Button = styled.button`
-  background: transparent;
-  color: #eee;
-  border: 2px solid #eee;
-  padding: 10px;
-  margin-right: 20px;
-  font-weight: bold;
-  text-transform: uppercase;
-`
 
 export default class ToneGenerator extends Component {
   constructor(props) {
@@ -102,16 +70,18 @@ export default class ToneGenerator extends Component {
   render() {
     const { playing, frequency } = this.state
     return (
-      <Container>
-        <Display>
-          <FrequencySlider frequency={frequency} />
-        </Display>
-        <Controls>
-          <Button onClick={this.toggleTone}>{playing ? 'Stop' : 'Play'}</Button>
-          <Button onClick={this.increaseFrequency}>+</Button>
-          <Button onClick={this.decreaseFrequency}>-</Button>
-        </Controls>
-      </Container>
+      <ControlledDisplay
+        display={<FrequencySlider frequency={frequency} />}
+        controls={
+          <Fragment>
+            <Button onClick={this.toggleTone}>
+              {playing ? 'Stop' : 'Play'}
+            </Button>
+            <Button onClick={this.increaseFrequency}>+</Button>
+            <Button onClick={this.decreaseFrequency}>-</Button>
+          </Fragment>
+        }
+      />
     )
   }
 }

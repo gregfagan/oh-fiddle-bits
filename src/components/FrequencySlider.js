@@ -8,11 +8,8 @@ const centerScale = 440 // A4
 const centerSemitone = notes.indexOf('A4')
 const centsOnScale = 325
 
-const Container = styled.div`
-  flex-grow: 1;
-`
-
 const Canvas = styled.canvas`
+  display: block;
   width: 100%;
   height: 100%;
 `
@@ -31,6 +28,7 @@ class FrequencySlider extends Component {
     super(props)
     this.setCanvasRef = element => {
       this.canvasEl = element
+      this.props.measureRef(element)
     }
   }
 
@@ -39,18 +37,14 @@ class FrequencySlider extends Component {
   }
 
   render() {
-    return (
-      <Container innerRef={this.props.measureRef}>
-        <Canvas innerRef={this.setCanvasRef} />
-      </Container>
-    )
+    return <Canvas innerRef={this.setCanvasRef} />
   }
 
   renderGraphics() {
     const { canvasEl } = this
     if (!canvasEl) return
     const ctx = this.canvasEl.getContext('2d')
-    const { frequency, contentRect } = this.props
+    const { frequency = 0, contentRect } = this.props
     const { width, height } = deviceScaledBounds(contentRect.bounds)
 
     canvasEl.width = width
