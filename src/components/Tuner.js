@@ -1,8 +1,20 @@
 import React, { Component } from 'react'
+import styled from 'styled-components'
 
-import ControlledDisplay, { Button } from './ControlledDisplay'
+import ControlledDisplay from './ControlledDisplay'
 import FrequencySlider from './FrequencySlider'
 import { createMicAnalyser } from '../audio'
+
+import { ReactComponent as MicIcon } from '../icon/mic.svg'
+
+const MicIconWrapper = ({ on, ...rest }) => <MicIcon {...rest} />
+const Mic = styled(MicIconWrapper)`
+  height: 100%;
+  /* margin: 1em; */
+  path {
+    fill: ${({ on }) => (on ? 'white' : 'black')};
+  }
+`
 
 export default class Tuner extends Component {
   constructor(props) {
@@ -62,9 +74,7 @@ export default class Tuner extends Component {
     return (
       <ControlledDisplay
         display={<FrequencySlider frequency={frequency} />}
-        controls={
-          <Button onClick={this.toggleTuner}>{tuning ? 'Stop' : 'Tune'}</Button>
-        }
+        controls={<Mic on={tuning} onClick={this.toggleTuner} />}
       />
     )
   }

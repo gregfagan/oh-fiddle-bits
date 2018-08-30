@@ -1,28 +1,23 @@
 import React, { Component } from 'react'
 import styled, { css } from 'styled-components'
+import Flex from './Flex'
 
 function makeURI(name) {
   return encodeURI('#' + name.replace(' ', '-'))
 }
 
-const Container = styled.section`
-  flex-grow: 1;
-  display: flex;
+const Container = styled(Flex)`
   flex-flow: ${props => (props.portrait ? 'column-reverse' : 'row')};
 `
 
-const Selector = styled.div`
-  display: flex;
+const Nav = styled(Flex.withComponent('nav'))`
   background: #111;
-  flex-shrink: 0;
-  flex-direction: ${props => (props.portrait ? 'row' : 'column')};
+  flex: 0 0 auto;
+  flex-flow: ${props => (props.portrait ? 'row' : 'column')};
   align-items: center;
 `
 
-const View = styled.main`
-  flex: 1 1 0;
-  overflow: hidden;
-`
+const View = Flex.withComponent('main')
 
 export const Option = styled.a.attrs({
   rel: 'internal',
@@ -97,7 +92,7 @@ export class Navigator extends Component {
 
     return (
       <Container portrait={portrait}>
-        <Selector portrait={portrait}>{options}</Selector>
+        <Nav portrait={portrait}>{options}</Nav>
         <View>{view}</View>
       </Container>
     )

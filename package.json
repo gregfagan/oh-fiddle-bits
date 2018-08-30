@@ -9,7 +9,7 @@
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-measure": "^2.1.0",
-    "react-scripts": "1.1.4",
+    "react-scripts": "2.0.0-next.a671462c",
     "styled-components": "^3.4.2"
   },
   "lint-staged": {
@@ -24,5 +24,17 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "development": [
+      "last 2 chrome versions",
+      "last 2 firefox versions",
+      "last 2 edge versions"
+    ],
+    "production": [
+      ">0.25%",
+      "not op_mini all",
+      "ie 11"
+    ]
   }
 }
