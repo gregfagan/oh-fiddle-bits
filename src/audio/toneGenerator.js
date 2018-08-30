@@ -1,5 +1,7 @@
+import { AudioContext } from './util'
+
 export default function create() {
-  const audioContext = new window.AudioContext()
+  const audioContext = new AudioContext()
   const oscillator = audioContext.createOscillator()
   oscillator.start()
   oscillator.connect(audioContext.destination)

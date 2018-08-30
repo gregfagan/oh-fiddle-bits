@@ -1,7 +1,7 @@
-import { findFundamentalFrequency } from './util'
+import { AudioContext, findFundamentalFrequency } from './util'
 
 export default function create() {
-  const audioContext = new window.AudioContext()
+  const audioContext = new AudioContext()
   const analyser = audioContext.createAnalyser()
   analyser.fftSize = 2048
   const buffer = new Uint8Array(analyser.fftSize)

@@ -1,3 +1,5 @@
+export const AudioContext = window.AudioContext || window.webkitAudioContext
+
 const log2 = Math.log(2)
 
 // An array note names based on commonly used
