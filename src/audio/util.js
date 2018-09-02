@@ -45,7 +45,6 @@ export function addCents(f, cents) {
 // TODO: understand, tweak, experiment
 export function findFundamentalFrequency(buffer, sampleRate) {
   const n = 1024
-  // const n = 2048
   let bestK = -1
   let bestR = 0
 

@@ -5,6 +5,7 @@ import Flex from './Flex'
 const Display = Flex.withComponent('figure')
 const Controls = styled(Flex)`
   align-items: center;
+  padding: 2em;
 `
 
 export default ({ display, controls }) => (
