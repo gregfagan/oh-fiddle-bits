@@ -29,6 +29,22 @@ export const notes = (() => {
   return names
 })()
 
+export const centerNote = notes.indexOf('A4')
+export const centerFrequency = 440
+
+export function nearestNote(f) {
+  const centsFromCenter = deltaCents(f, centerFrequency)
+  const semitonesFromCenter = Math.round(centsFromCenter / 100)
+  const note = centerNote + semitonesFromCenter
+  return note
+}
+
+export function frequencyOfNote(note) {
+  const semitonesFromCenter = note - centerNote
+  const centsFromCenter = semitonesFromCenter * 100
+  return addCents(centerFrequency, centsFromCenter)
+}
+
 // Returns the difference between frequencies f1 and f2 in cents
 // https://en.wikipedia.org/wiki/Cent_(music)
 export function deltaCents(f1, f2) {

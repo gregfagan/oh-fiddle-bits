@@ -1,17 +1,25 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import { withContentRect } from 'react-measure'
+import { easeElastic } from 'd3-ease'
 
-import { deltaCents, notes } from '../audio'
+import {
+  deltaCents,
+  addCents,
+  notes,
+  centerNote,
+  centerFrequency,
+  nearestNote,
+  frequencyOfNote,
+} from '../audio'
 
-const centerScale = 440 // A4
-const centerSemitone = notes.indexOf('A4')
-const centsOnScale = 325
+const snapDuration = 0.5
 
 const Canvas = styled.canvas`
   display: block;
   width: 100%;
   height: 100%;
+  touch-action: none;
 `
 
 function deviceScaledBounds(bounds) {
@@ -24,12 +32,19 @@ function deviceScaledBounds(bounds) {
 }
 
 class FrequencySlider extends Component {
-  constructor(props) {
-    super(props)
-    this.setCanvasRef = element => {
-      this.canvasEl = element
-      this.props.measureRef(element)
-    }
+  canvasEl = null
+  snapRefId = null
+  state = {
+    panning: false,
+    panStart: null,
+    startFrequency: 0,
+    snapStart: null,
+    snapToFrequency: 0,
+  }
+
+  setCanvasRef = element => {
+    this.canvasEl = element
+    this.props.measureRef(element)
   }
 
   componentDidUpdate() {
@@ -37,14 +52,91 @@ class FrequencySlider extends Component {
   }
 
   render() {
-    return <Canvas innerRef={this.setCanvasRef} />
+    const { onFrequencyChange } = this.props
+    return (
+      <Canvas
+        innerRef={this.setCanvasRef}
+        onPointerDown={onFrequencyChange && this.startPanning}
+        onPointerUp={onFrequencyChange && this.stopPanning}
+        onPointerCancel={onFrequencyChange && this.stopPanning}
+        onPointerOut={onFrequencyChange && this.stopPanning}
+        onPointerMove={onFrequencyChange && this.pan}
+      />
+    )
+  }
+
+  startPanning = e => {
+    const { frequency } = this.props
+
+    if (this.snapRafId) {
+      cancelAnimationFrame(this.snapRafId)
+      this.snapRafId = undefined
+    }
+
+    this.setState({
+      panning: true,
+      panStart: e.nativeEvent.clientX,
+      startFrequency: frequency,
+    })
+  }
+
+  pan = e => {
+    const { panning, panStart, startFrequency } = this.state
+    const { onFrequencyChange, contentRect, centsOnScale } = this.props
+    const { width } = contentRect.bounds
+
+    if (!panning) return
+
+    const pixelsPerCent = width / centsOnScale
+    const panDelta = e.nativeEvent.clientX - panStart
+    const centDelta = -panDelta / pixelsPerCent
+    const newFrequency = addCents(startFrequency, centDelta)
+
+    onFrequencyChange(newFrequency)
+  }
+
+  stopPanning = () => {
+    const { panning } = this.state
+    if (!panning) return
+
+    this.setState((prevState, props) => {
+      const { frequency } = props
+      const snapToNote = nearestNote(frequency)
+      const snapToFrequency = frequencyOfNote(snapToNote)
+      return {
+        panning: false,
+        snapStart: performance.now(),
+        startFrequency: frequency,
+        snapToFrequency,
+      }
+    }, this.snap)
+  }
+
+  snap = () => {
+    const { panning, snapStart, startFrequency, snapToFrequency } = this.state
+    const { onFrequencyChange } = this.props
+    if (panning) return
+
+    const t = Math.min(
+      (performance.now() - snapStart) / (snapDuration * 1000),
+      1,
+    )
+
+    if (t < 1) {
+      const cents = deltaCents(snapToFrequency, startFrequency)
+      const newFrequency = addCents(startFrequency, easeElastic(t) * cents)
+      onFrequencyChange(newFrequency)
+      this.snapRafId = requestAnimationFrame(this.snap)
+    } else {
+      onFrequencyChange(snapToFrequency)
+    }
   }
 
   renderGraphics() {
-    const { canvasEl } = this
+    const { canvasEl, props } = this
     if (!canvasEl) return
-    const ctx = this.canvasEl.getContext('2d')
-    const { frequency = 0, contentRect } = this.props
+    const ctx = canvasEl.getContext('2d')
+    const { frequency = 0, contentRect, centsOnScale } = props
     const { width, height } = deviceScaledBounds(contentRect.bounds)
 
     canvasEl.width = width
@@ -67,9 +159,9 @@ class FrequencySlider extends Component {
 
     // Semitone marks
     const pixelsPerCent = width / centsOnScale
-    const centsFromCenterOfScale = deltaCents(frequency, centerScale)
+    const centsFromCenterOfScale = deltaCents(frequency, centerFrequency)
     const semitonesFromCenter = Math.floor((centsFromCenterOfScale + 50) / 100)
-    const semitoneNearestCenter = centerSemitone + semitonesFromCenter
+    const semitoneNearestCenter = centerNote + semitonesFromCenter
     const centsFromCenterOfScreen =
       centsFromCenterOfScale - semitonesFromCenter * 100
 
@@ -77,7 +169,8 @@ class FrequencySlider extends Component {
     ctx.font = `bold ${0.1 * height}px sans-serif`
     ctx.fillStyle = 'gray'
     ctx.strokeStyle = 'gray'
-    for (let i = -2; i <= 2; i++) {
+    const numberOfTicksOnEachSide = Math.ceil(centsOnScale / 200) + 1
+    for (let i = -numberOfTicksOnEachSide; i <= numberOfTicksOnEachSide; i++) {
       // Semitone Tick
       ctx.lineWidth = needleWidth / 2
       const x = halfWidth - (centsFromCenterOfScreen + 100 * i) * pixelsPerCent
@@ -92,15 +185,17 @@ class FrequencySlider extends Component {
       ctx.fillText(name, x, height * 0.64)
 
       // 10 cent division ticks
-      ctx.lineWidth = needleWidth / 3
-      if (i !== -2) {
-        for (let j = 1; j <= 9; j++) {
-          const xt = x + j * 10 * pixelsPerCent
-          ctx.beginPath()
-          ctx.moveTo(xt, height * 0.9)
-          ctx.lineTo(xt, height)
-          ctx.closePath()
-          ctx.stroke()
+      if (centsOnScale < 450) {
+        ctx.lineWidth = needleWidth / 3
+        if (i !== -numberOfTicksOnEachSide) {
+          for (let j = 1; j <= 9; j++) {
+            const xt = x + j * 10 * pixelsPerCent
+            ctx.beginPath()
+            ctx.moveTo(xt, height * 0.9)
+            ctx.lineTo(xt, height)
+            ctx.closePath()
+            ctx.stroke()
+          }
         }
       }
     }
@@ -111,7 +206,7 @@ class FrequencySlider extends Component {
     ctx.fillStyle = 'black'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
-    ctx.fillText(frequency.toFixed(2), margin, margin)
+    ctx.fillText(frequency.toFixed(1), margin, margin)
   }
 }
 

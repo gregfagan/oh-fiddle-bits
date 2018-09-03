@@ -88,7 +88,7 @@ export default class Tuner extends Component {
         display={<FrequencySlider frequency={frequency} centsOnScale={350} />}
         controls={
           error ? (
-            <span>Error: no microphone</span>
+            <span>error: no microphone</span>
           ) : (
             <Mic on={tuning} onClick={this.toggleTuner} />
           )

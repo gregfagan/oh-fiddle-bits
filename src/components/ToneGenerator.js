@@ -1,24 +1,15 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
-import ControlledDisplay, { Button } from './ControlledDisplay'
+import ControlledDisplay from './ControlledDisplay'
 import FrequencySlider from './FrequencySlider'
-import { createToneGenerator, addCents } from '../audio'
-
-const centStep = 10
+import ToneButton from './ToneButton'
+import { createToneGenerator } from '../audio'
 
 export default class ToneGenerator extends Component {
-  constructor(props) {
-    super(props)
-
-    this.toggleTone = this.toggleTone.bind(this)
-    this.increaseFrequency = this.increaseFrequency.bind(this)
-    this.decreaseFrequency = this.decreaseFrequency.bind(this)
-
-    this.state = {
-      generator: null,
-      frequency: 440,
-      playing: false,
-    }
+  state = {
+    generator: null,
+    frequency: 440,
+    playing: false,
   }
 
   componentWillUnmount() {
@@ -28,7 +19,7 @@ export default class ToneGenerator extends Component {
     }
   }
 
-  toggleTone() {
+  toggleTone = () => {
     this.setState(prevState => {
       let { generator, frequency, playing } = prevState
 
@@ -49,37 +40,31 @@ export default class ToneGenerator extends Component {
     })
   }
 
-  changeFrequency(step) {
+  setFrequency = frequency => {
     this.setState(prevState => {
       const { generator } = prevState
-      let { frequency } = prevState
-      frequency = addCents(frequency, step)
       if (generator) generator.setFrequency(frequency)
       return { frequency }
     })
-  }
-
-  increaseFrequency() {
-    this.changeFrequency(centStep)
-  }
-
-  decreaseFrequency() {
-    this.changeFrequency(-centStep)
   }
 
   render() {
     const { playing, frequency } = this.state
     return (
       <ControlledDisplay
-        display={<FrequencySlider frequency={frequency} />}
+        display={
+          <FrequencySlider
+            frequency={frequency}
+            onFrequencyChange={this.setFrequency}
+            centsOnScale={825}
+          />
+        }
         controls={
-          <Fragment>
-            <Button onClick={this.toggleTone}>
-              {playing ? 'Stop' : 'Play'}
-            </Button>
-            <Button onClick={this.increaseFrequency}>+</Button>
-            <Button onClick={this.decreaseFrequency}>-</Button>
-          </Fragment>
+          <ToneButton
+            on={playing}
+            frequency={frequency}
+            onClick={this.toggleTone}
+          />
         }
       />
     )

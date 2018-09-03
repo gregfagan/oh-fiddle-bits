@@ -1,19 +1,15 @@
 import { AudioContext, findFundamentalFrequency } from './util'
 
-export default function create() {
+export default async function create() {
   const audioContext = new AudioContext()
   const analyser = audioContext.createAnalyser()
   analyser.fftSize = 2048
   const buffer = new Uint8Array(analyser.fftSize)
   audioContext.suspend()
 
-  navigator.mediaDevices
-    .getUserMedia({ audio: true })
-    .then(stream => {
-      const microphone = audioContext.createMediaStreamSource(stream)
-      microphone.connect(analyser)
-    })
-    .catch(err => console.log('Could not get microphone stream', err))
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+  const microphone = audioContext.createMediaStreamSource(stream)
+  microphone.connect(analyser)
 
   return {
     start: () => audioContext.resume(),
