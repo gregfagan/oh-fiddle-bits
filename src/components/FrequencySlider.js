@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import { withContentRect } from 'react-measure'
-import { easeElastic } from 'd3-ease'
+import { easeElastic, easeExpInOut } from 'd3-ease'
 
 import {
   deltaCents,
@@ -12,6 +12,10 @@ import {
   nearestNote,
   frequencyOfNote,
 } from '../audio'
+
+function lerp(t, min, max) {
+  return min * (1 - t) + max * t
+}
 
 const snapDuration = 0.5
 
@@ -53,6 +57,7 @@ class FrequencySlider extends Component {
 
   render() {
     const { onFrequencyChange } = this.props
+
     return (
       <Canvas
         innerRef={this.setCanvasRef}
@@ -82,12 +87,10 @@ class FrequencySlider extends Component {
 
   pan = e => {
     const { panning, panStart, startFrequency } = this.state
-    const { onFrequencyChange, contentRect, centsOnScale } = this.props
-    const { width } = contentRect.bounds
+    const { onFrequencyChange, pixelsPerCent } = this.props
 
     if (!panning) return
 
-    const pixelsPerCent = width / centsOnScale
     const panDelta = e.nativeEvent.clientX - panStart
     const centDelta = -panDelta / pixelsPerCent
     const newFrequency = addCents(startFrequency, centDelta)
@@ -136,7 +139,12 @@ class FrequencySlider extends Component {
     const { canvasEl, props } = this
     if (!canvasEl) return
     const ctx = canvasEl.getContext('2d')
-    const { frequency = 0, contentRect, centsOnScale } = props
+    const {
+      frequency = 0,
+      contentRect,
+      pixelsPerCent: cssPixelsPerCent,
+    } = props
+    const { width: cssWidth } = contentRect.bounds
     const { width, height } = deviceScaledBounds(contentRect.bounds)
 
     canvasEl.width = width
@@ -148,7 +156,7 @@ class FrequencySlider extends Component {
     // needle
     const halfWidth = 0.5 * width
     const halfHeight = 0.5 * height
-    const needleWidth = 0.0075 * width
+    const needleWidth = 5 * window.devicePixelRatio
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.75)'
     ctx.lineWidth = needleWidth
     ctx.beginPath()
@@ -158,6 +166,7 @@ class FrequencySlider extends Component {
     ctx.stroke()
 
     // Semitone marks
+    const centsOnScale = cssWidth / cssPixelsPerCent
     const pixelsPerCent = width / centsOnScale
     const centsFromCenterOfScale = deltaCents(frequency, centerFrequency)
     const semitonesFromCenter = Math.floor((centsFromCenterOfScale + 50) / 100)
@@ -166,7 +175,6 @@ class FrequencySlider extends Component {
       centsFromCenterOfScale - semitonesFromCenter * 100
 
     ctx.textAlign = 'center'
-    ctx.font = `bold ${0.1 * height}px sans-serif`
     ctx.fillStyle = 'gray'
     ctx.strokeStyle = 'gray'
     const numberOfTicksOnEachSide = Math.ceil(centsOnScale / 200) + 1
@@ -182,10 +190,15 @@ class FrequencySlider extends Component {
 
       // Semitone label
       const name = notes[semitoneNearestCenter - i]
-      ctx.fillText(name, x, height * 0.64)
+      const t =
+        i === 0 ? easeExpInOut(1 - Math.abs(centsFromCenterOfScreen / 50)) : 0
+      const fontScale = lerp(t, 0.1, 0.2) * height
+      const y = lerp(t, 0.64, 0.44) * height
+      ctx.font = `bold ${fontScale}px sans-serif`
+      ctx.fillText(name, x, y)
 
       // 10 cent division ticks
-      if (centsOnScale < 450) {
+      if (cssPixelsPerCent > 1.75) {
         ctx.lineWidth = needleWidth / 3
         if (i !== -numberOfTicksOnEachSide) {
           for (let j = 1; j <= 9; j++) {
@@ -201,8 +214,9 @@ class FrequencySlider extends Component {
     }
 
     // numeric frequency label
-    const margin = 0.1 * height
-    ctx.font = `bold ${0.33 * height}px sans-serif`
+    const labelSize = Math.min(0.26 * height, 0.1 * width)
+    const margin = 0.25 * labelSize
+    ctx.font = `bold ${labelSize}px sans-serif`
     ctx.fillStyle = 'black'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'

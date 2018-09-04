@@ -85,7 +85,7 @@ export default class Tuner extends Component {
     const { error, tuning, frequency } = this.state
     return (
       <ControlledDisplay
-        display={<FrequencySlider frequency={frequency} centsOnScale={350} />}
+        display={<FrequencySlider frequency={frequency} pixelsPerCent={3} />}
         controls={
           error ? (
             <span>error: no microphone</span>
