@@ -5,12 +5,12 @@ import styled from 'styled-components'
 export default styled.div`
   display: flex;
 
-  // Grow down
+  /* Grow down */
   flex-flow: column;
 
-  // Grow and shrink without a basis
+  /* Grow and shrink without a basis */
   flex: 1 1 0;
 
-  // Prevent child elements from pushing out the size of this one
+  /* Prevent child elements from pushing out the size of this one */
   overflow: hidden;
 `
