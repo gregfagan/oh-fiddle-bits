@@ -1,6 +1,7 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import styled from 'styled-components'
 
+import Flex from './Flex'
 import ControlledDisplay from './ControlledDisplay'
 import FrequencySlider from './FrequencySlider'
 import { createMicAnalyser } from '../audio'
@@ -15,12 +16,44 @@ const Mic = styled(MicIconWrapper)`
   }
 `
 
-export default class Tuner extends Component {
+const Error = styled(Flex)`
+  align-items: center;
+  justify-content: center;
+`
+
+export default class Tuner extends PureComponent {
   rafId = null
   analyser = null
   state = {
     tuning: false,
     frequency: undefined,
+    error: undefined,
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { analyser } = this
+    const { tuning } = this.state
+
+    if (tuning !== prevState.tuning) {
+      // If this is the first time to enable the tuner, we need
+      // to create the analyser. This is an async operation, so
+      // when it's done we'll go ahead and start it.
+      if (!analyser) {
+        createMicAnalyser()
+          .then(analyser => {
+            this.analyser = analyser
+            this.startTuner()
+          })
+          .catch(error => {
+            console.error(error)
+            this.setState({ error })
+          })
+      } else if (tuning) {
+        this.startTuner()
+      } else {
+        this.stopTuner()
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -29,52 +62,29 @@ export default class Tuner extends Component {
     if (rafId) cancelAnimationFrame(rafId)
   }
 
-  createAnalyser(onComplete) {
-    createMicAnalyser()
-      .then(analyser => {
-        this.analyser = analyser
-        onComplete()
-      })
-      .catch(error => {
-        console.error(error)
-        this.setState({ error })
-      })
+  startTuner() {
+    this.analyser.start()
+    this.rafId = requestAnimationFrame(this.sample)
+  }
+
+  stopTuner() {
+    this.analyser.stop()
+    cancelAnimationFrame(this.rafId)
   }
 
   toggleTuner = () => {
-    const { analyser, toggleTuner } = this
-
-    if (!analyser) {
-      // We don't have the micAnalyser set up yet. Getting permission from
-      // the user is an async operation that can fail, so if successful, we'll
-      // call this function again to turn it on
-      this.createAnalyser(toggleTuner)
-      return
-    }
-
-    this.setState(prevState => {
-      const { rafId, sample } = this
-      const { tuning } = prevState
-
-      if (tuning) {
-        analyser.stop()
-        if (rafId) cancelAnimationFrame(rafId)
-        return { tuning: false }
-      } else {
-        analyser.start()
-        this.rafId = requestAnimationFrame(sample)
-        return { tuning: true }
-      }
-    })
+    this.setState(prevState => ({
+      tuning: !prevState.tuning,
+    }))
   }
 
   sample = () => {
-    const { analyser, sample, state } = this
-    const { frequency: prevFrequency } = state
-    const frequency = analyser.samplePitch()
-    const frequencyChanged = frequency !== -1 && frequency !== prevFrequency
+    const { analyser, sample } = this
 
-    if (frequencyChanged) {
+    const frequency = analyser.samplePitch()
+    // Don't change the frequency back to undefined;
+    // leave the display at the last seen frequency
+    if (frequency !== undefined) {
       this.setState({ frequency })
     }
 
@@ -83,16 +93,12 @@ export default class Tuner extends Component {
 
   render() {
     const { error, tuning, frequency } = this.state
-    return (
+    return error ? (
+      <Error>error: no microphone</Error>
+    ) : (
       <ControlledDisplay
         display={<FrequencySlider frequency={frequency} pixelsPerCent={3} />}
-        controls={
-          error ? (
-            <span>error: no microphone</span>
-          ) : (
-            <Mic on={tuning} onClick={this.toggleTuner} />
-          )
-        }
+        controls={<Mic on={tuning} onClick={this.toggleTuner} />}
       />
     )
   }

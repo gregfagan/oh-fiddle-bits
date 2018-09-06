@@ -6,46 +6,50 @@ import ToneButton from './ToneButton'
 import { createToneGenerator } from '../audio'
 
 export default class ToneGenerator extends Component {
+  generator = null
   state = {
-    generator: null,
     frequency: 440,
     playing: false,
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    let { generator } = this
+    const { frequency, playing } = this.state
+
+    // toggle playing, create generator if necessary
+    if (playing !== prevState.playing) {
+      if (!generator) {
+        generator = createToneGenerator()
+        generator.setFrequency(frequency)
+        this.generator = generator
+      }
+
+      if (prevState.playing) {
+        generator.stop()
+      } else {
+        generator.start()
+      }
+    }
+
+    // update frequency
+    if (generator && frequency !== prevState.frequency) {
+      generator.setFrequency(frequency)
+    }
+  }
+
   componentWillUnmount() {
-    const { generator } = this.state
+    const { generator } = this
     if (generator) {
       generator.stop()
     }
   }
 
   toggleTone = () => {
-    this.setState(prevState => {
-      let { generator, frequency, playing } = prevState
-
-      if (!generator) {
-        generator = createToneGenerator()
-        generator.setFrequency(frequency)
-      }
-
-      if (playing) {
-        generator.stop()
-        playing = false
-      } else {
-        generator.start()
-        playing = true
-      }
-
-      return { generator, playing }
-    })
+    this.setState(prevState => ({ playing: !prevState.playing }))
   }
 
   setFrequency = frequency => {
-    this.setState(prevState => {
-      const { generator } = prevState
-      if (generator) generator.setFrequency(frequency)
-      return { frequency }
-    })
+    this.setState({ frequency })
   }
 
   render() {

@@ -88,6 +88,6 @@ export function findFundamentalFrequency(buffer, sampleRate) {
     return fundamentalFreq
   } else {
     // We haven't found a good correlation
-    return -1
+    return undefined
   }
 }
