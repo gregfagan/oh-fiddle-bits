@@ -19,7 +19,10 @@ function lerp(t, min, max) {
 
 const snapDuration = 0.5
 
-const Canvas = styled.canvas`
+const Canvas = styled.canvas.attrs(
+  // required for pointer events polyfill
+  { 'touch-action': 'none' },
+)`
   display: block;
   width: 100%;
   height: 100%;
@@ -36,6 +39,10 @@ function deviceScaledBounds(bounds) {
 }
 
 class FrequencySlider extends Component {
+  static defaultProps = {
+    pixelsPerCent: 3,
+  }
+
   canvasEl = null
   snapRefId = null
   state = {
@@ -156,7 +163,7 @@ class FrequencySlider extends Component {
     // needle
     const halfWidth = 0.5 * width
     const halfHeight = 0.5 * height
-    const needleWidth = 5 * window.devicePixelRatio
+    const needleWidth = 7 * window.devicePixelRatio
     ctx.strokeStyle = 'rgba(255, 0, 0, 0.75)'
     ctx.lineWidth = needleWidth
     ctx.beginPath()
