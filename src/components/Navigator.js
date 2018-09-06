@@ -48,10 +48,8 @@ function isPortrait() {
 }
 
 export class Navigator extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = { portrait: isPortrait() }
+  state = {
+    portrait: isPortrait(),
   }
 
   componentDidMount() {

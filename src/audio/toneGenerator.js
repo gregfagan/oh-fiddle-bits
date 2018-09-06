@@ -11,5 +11,6 @@ export default function create() {
     setFrequency: f => (oscillator.frequency.value = f),
     start: () => audioContext.resume(),
     stop: () => audioContext.suspend(),
+    destroy: () => audioContext.close(),
   }
 }

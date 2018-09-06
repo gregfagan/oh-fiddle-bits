@@ -14,7 +14,7 @@ const Title = styled.h1`
   font-size: 1.5em;
 `
 
-export default () => (
+export default ({ extraOptions }) => (
   <>
     <Header>
       <Title>oh fiddle bits!</Title>
@@ -23,6 +23,7 @@ export default () => (
       <Option render={() => <Tuner />}>tune</Option>
       <Option render={() => <ToneGenerator />}>tone</Option>
       <Option>beat</Option>
+      {extraOptions}
     </Navigator>
   </>
 )

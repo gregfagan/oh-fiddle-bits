@@ -58,7 +58,7 @@ export default class Tuner extends PureComponent {
 
   componentWillUnmount() {
     const { analyser, rafId } = this
-    if (analyser) analyser.stop()
+    if (analyser) analyser.destroy()
     if (rafId) cancelAnimationFrame(rafId)
   }
 

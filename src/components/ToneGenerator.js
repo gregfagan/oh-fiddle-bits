@@ -40,7 +40,7 @@ export default class ToneGenerator extends Component {
   componentWillUnmount() {
     const { generator } = this
     if (generator) {
-      generator.stop()
+      generator.destroy()
     }
   }
 
