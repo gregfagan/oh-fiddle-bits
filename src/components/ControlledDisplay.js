@@ -2,22 +2,19 @@ import React from 'react'
 import styled from 'styled-components'
 import Flex from './Flex'
 
-const Display = Flex.withComponent('figure')
+const Container = styled(Flex)`
+  display: grid;
+  grid-template-rows: 50% 50%;
+`
+
 const Controls = styled(Flex)`
   align-items: center;
   padding: 2em;
 `
 
 export default ({ display, controls }) => (
-  <>
-    <Display>{display}</Display>
+  <Container>
+    <figure>{display}</figure>
     <Controls>{controls}</Controls>
-  </>
+  </Container>
 )
-
-export const Button = styled.button`
-  background: orange;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-`
