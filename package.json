@@ -1,9 +1,16 @@
 {
   "name": "oh-fiddle-bits",
+  "homepage": ".",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gregfagan/oh-fiddle-bits.git"
+  },
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "cross-env": "^5.2.0",
     "d3-ease": "^1.0.5",
+    "gh-pages": "^1.2.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.2.0",
     "prettier": "^1.14.2",
@@ -21,8 +28,10 @@
   },
   "scripts": {
     "precommit": "lint-staged",
-    "start": "react-scripts start",
+    "predeploy": "npm run build",
+    "start": "cross-env-shell BROWSER=none react-scripts start",
     "build": "react-scripts build",
+    "deploy": "gh-pages -d build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
