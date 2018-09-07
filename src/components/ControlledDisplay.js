@@ -7,6 +7,10 @@ const Container = styled(Flex)`
   grid-template-rows: 50% 50%;
 `
 
+const Display = styled.figure`
+  background: white;
+`
+
 const Controls = styled(Flex)`
   align-items: center;
   padding: 2em;
@@ -14,7 +18,7 @@ const Controls = styled(Flex)`
 
 export default ({ display, controls }) => (
   <Container>
-    <figure>{display}</figure>
+    <Display>{display}</Display>
     <Controls>{controls}</Controls>
   </Container>
 )
