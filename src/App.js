@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { Navigator, Option } from './components/Navigator'
+import Navigator from './components/Navigator'
 import Tuner from './components/Tuner'
 import ToneGenerator from './components/ToneGenerator'
 
@@ -14,16 +14,17 @@ const Title = styled.h1`
   font-size: 1.5em;
 `
 
-export default ({ extraOptions }) => (
+export default ({ extraOptions = [] }) => (
   <>
     <Header>
       <Title>oh fiddle bits!</Title>
     </Header>
     <Navigator>
-      <Option render={() => <Tuner />}>tune</Option>
-      <Option render={() => <ToneGenerator />}>tone</Option>
-      <Option>beat</Option>
-      {extraOptions}
+      {[
+        { name: 'tune', view: Tuner },
+        { name: 'tone', view: ToneGenerator },
+        { name: 'beat' },
+      ].concat(extraOptions)}
     </Navigator>
   </>
 )
