@@ -8,40 +8,66 @@ function makeURI(name) {
 
 const Container = styled(Flex)`
   flex-flow: row;
-  @media screen and (orientation: portrait) {
+  @media (orientation: portrait) {
     flex-flow: column-reverse;
   }
 `
 
-const Nav = styled(Flex.withComponent('nav'))(css`
-  background: #111;
+const Nav = styled(Flex)`
+  background: ${props => props.theme.background};
   flex: 0 0 auto;
-  flex-flow: column;
-  align-items: center;
-  @media screen and (orientation: portrait) {
+
+  @media (orientation: landscape) {
+    flex-flow: column;
+    box-shadow: inset -8px 0 8px -5px rgba(0, 0, 0, 0.2);
+  }
+
+  @media (orientation: portrait) {
     flex-flow: row;
+    box-shadow: inset 0 8px 8px -5px rgba(0, 0, 0, 0.2);
   }
-`)
+`
 
-const View = Flex.withComponent('main')
+const View = styled(Flex)`
+  background: ${props => props.theme.foreground};
+  @media (orientation: landscape) {
+    padding: 0em 1.5em;
+  }
+`
 
+const selectedAccentSize = '7px'
 const selectedOption = css`
-  background: #222;
+  color: ${props => props.theme.active};
+  background: ${props => props.theme.foreground};
 
-  @media screen and (orientation: portrait) {
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid red;
+  @media (orientation: portrait) {
+    border-top: 0px solid transparent;
+    border-bottom: ${selectedAccentSize} solid
+      ${props => props.theme.shades.accent};
   }
 
-  @media screen and (orientation: landscape) {
-    border-right: 5px solid transparent;
-    border-left: 5px solid red;
+  @media (orientation: landscape) {
+    border-right: 0px solid transparent;
+    border-left: ${selectedAccentSize} solid
+      ${props => props.theme.shades.accent};
+  }
+`
+
+const unselectedOption = css`
+  @media (orientation: portrait) {
+    border-top: ${selectedAccentSize} solid transparent;
+    border-bottom: 0px;
+  }
+
+  @media (orientation: landscape) {
+    border-right: ${selectedAccentSize} solid transparent;
+    border-left: 0px;
   }
 `
 
 const disabledOption = css`
   cursor: default;
-  color: #222;
+  color: ${props => props.theme.disabled};
 `
 
 const Option = styled.a.attrs({
@@ -51,17 +77,18 @@ const Option = styled.a.attrs({
 })`
   display: block;
   outline: none;
-  padding: 1em 3em;
+  padding: 1em 3.25em;
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
-  font-weight: bold;
+  font-weight: 500;
   cursor: pointer;
-  color: white;
-  ${props => props.selected && selectedOption};
+  color: ${props => props.theme.inactive};
+  transition: border 0.15s;
+  ${props => (props.selected ? selectedOption : unselectedOption)};
   ${props => props.disabled && disabledOption};
 
-  @media screen and (orientation: portrait) {
+  @media (orientation: portrait) {
     flex-grow: 1;
     padding: 1em;
   }
@@ -99,8 +126,8 @@ export default class Navigator extends Component {
 
     return (
       <Container>
-        <Nav>{renderedOptions}</Nav>
-        <View>{renderedView}</View>
+        <Nav as="nav">{renderedOptions}</Nav>
+        <View as="main">{renderedView}</View>
       </Container>
     )
   }

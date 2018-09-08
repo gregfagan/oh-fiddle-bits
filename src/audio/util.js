@@ -7,16 +7,16 @@ const log2 = Math.log(2)
 export const notes = (() => {
   const chromatic = [
     'C',
-    'C#',
+    'C♯',
     'D',
-    'D#',
+    'D♯',
     'E',
     'F',
-    'F#',
+    'F♯',
     'G',
-    'G#',
+    'G♯',
     'A',
-    'A#',
+    'A♯',
     'B',
   ]
   const names = []

@@ -6,15 +6,18 @@ import Flex from '../../components/Flex'
 
 import createTestAnalyser from '../audio/testAnalyser'
 
+const Container = styled(Flex)`
+  padding-bottom: 1.5em;
+`
+
 const Label = styled(Flex)`
   flex: 0 0 auto;
-  font-size: 1.5em;
-  text-transform: uppercase;
-  padding: 1.5em;
-  padding-bottom: 0.5em;
-  font-weight: bolder;
-  color: red;
+  text-transform: lowercase;
+  padding: 1em;
+  font-family: ${props => props.theme.text.family.display};
+  color: ${props => props.theme.text};
 `
+
 const LabelledDisplay = ({ label, children: display }) => (
   <Flex>
     <Label>{label}</Label>
@@ -66,7 +69,7 @@ export default class TestAnalyser extends Component {
   render() {
     const { inputF, outputF } = this.state
     return (
-      <>
+      <Container>
         <LabelledDisplay label="Generated">
           <FrequencySlider
             frequency={inputF}
@@ -76,7 +79,7 @@ export default class TestAnalyser extends Component {
         <LabelledDisplay label="Detected">
           <FrequencySlider frequency={outputF} />
         </LabelledDisplay>
-      </>
+      </Container>
     )
   }
 }

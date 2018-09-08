@@ -8,17 +8,39 @@ const Container = styled(Flex)`
 `
 
 const Display = styled.figure`
-  background: white;
+  position: relative;
+  background: ${props => props.theme.info.background};
+`
+
+const Shadow = styled.div`
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  @media (orientation: portrait) {
+    box-shadow: inset 0 -5px 18px -4px rgba(0, 0, 0, 0.3),
+      inset 0 5px 18px -4px rgba(0, 0, 0, 0.3);
+  }
+
+  @media (orientation: landscape) {
+    box-shadow: inset 0 0 18px 3px rgba(0, 0, 0, 0.3);
+  }
 `
 
 const Controls = styled(Flex)`
   align-items: center;
-  padding: 2em;
+  padding: 5vh;
 `
 
 export default ({ display, controls }) => (
   <Container>
-    <Display>{display}</Display>
+    <Display>
+      <Shadow />
+      {display}
+    </Display>
     <Controls>{controls}</Controls>
   </Container>
 )

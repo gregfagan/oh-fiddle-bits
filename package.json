@@ -18,7 +18,7 @@
     "react-dom": "^16.4.2",
     "react-measure": "^2.1.0",
     "react-scripts": "2.0.0-next.a671462c",
-    "styled-components": "^3.4.2"
+    "styled-components": "^4.0.0-beta.1"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 const Graphic = styled.svg`
   height: 100%;
   cursor: ${props => (props.onClick ? 'pointer' : 'default')};
-  --color: ${props => (props.on ? 'white' : 'black')};
+  --color: ${props => (props.on ? props.theme.active : props.theme.inactive)};
   circle {
     stroke: var(--color);
   }
