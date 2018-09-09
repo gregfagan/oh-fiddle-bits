@@ -4,17 +4,8 @@ import styled from 'styled-components'
 import Flex from './Flex'
 import ControlledDisplay from './ControlledDisplay'
 import FrequencySlider from './FrequencySlider'
+import MicButton from './MicButton'
 import { createMicAnalyser } from '../audio'
-
-import { ReactComponent as MicIcon } from '../icon/mic.svg'
-
-const MicIconWrapper = ({ on, ...rest }) => <MicIcon {...rest} />
-const Mic = styled(MicIconWrapper)`
-  height: 100%;
-  path {
-    fill: ${({ on }) => (on ? 'white' : 'black')};
-  }
-`
 
 const Error = styled(Flex)`
   align-items: center;
@@ -98,7 +89,7 @@ export default class Tuner extends PureComponent {
     ) : (
       <ControlledDisplay
         display={<FrequencySlider frequency={frequency} pixelsPerCent={3} />}
-        controls={<Mic on={tuning} onClick={this.toggleTuner} />}
+        controls={<MicButton on={tuning} onClick={this.toggleTuner} />}
       />
     )
   }
