@@ -24,7 +24,6 @@ export const Option = styled.a.attrs({
   href: props => props.render && makeURI(props.children),
 })`
   display: block;
-  user-select: none;
   cursor: ${props => (props.render ? 'pointer' : 'default')};
   padding: ${props => (props.portrait ? '1em' : '1em 3em')};
   outline: none;
