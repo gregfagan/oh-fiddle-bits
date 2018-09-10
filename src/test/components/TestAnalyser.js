@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 
 import FrequencySlider from '../../components/FrequencySlider'
+import FrequencyInputSlider from '../../components/FrequencyInputSlider'
 import Flex from '../../components/Flex'
 
 import createTestAnalyser from '../audio/testAnalyser'
@@ -71,7 +72,7 @@ export default class TestAnalyser extends Component {
     return (
       <Container>
         <LabelledDisplay label="Generated">
-          <FrequencySlider
+          <FrequencyInputSlider
             frequency={inputF}
             onFrequencyChange={this.setFrequency}
           />

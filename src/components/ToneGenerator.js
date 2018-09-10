@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import ControlledDisplay from './ControlledDisplay'
-import FrequencySlider from './FrequencySlider'
+import FrequencyInputSlider from './FrequencyInputSlider'
 import ToneButton from './ToneButton'
 import { createToneGenerator } from '../audio'
 
@@ -57,7 +57,7 @@ export default class ToneGenerator extends Component {
     return (
       <ControlledDisplay
         display={
-          <FrequencySlider
+          <FrequencyInputSlider
             frequency={frequency}
             onFrequencyChange={this.setFrequency}
             pixelsPerCent={1.4}

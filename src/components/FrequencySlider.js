@@ -1,151 +1,32 @@
 import React, { Component } from 'react'
-import styled, { withTheme } from 'styled-components'
-import { withContentRect } from 'react-measure'
-import { easeElastic, easeExpInOut } from 'd3-ease'
+import { withTheme } from 'styled-components'
+import { easeExpInOut } from 'd3-ease'
 
-import {
-  deltaCents,
-  addCents,
-  notes,
-  centerNote,
-  centerFrequency,
-  nearestNote,
-  frequencyOfNote,
-} from '../audio'
+import ResponsiveCanvas, { deviceScaled } from './ResponsiveCanvas'
+import { deltaCents, notes, centerNote, centerFrequency } from '../audio'
 
 const hz = 'Hz'
-const snapDuration = 0.5
 const needleWidth = 5
 
-const Canvas = styled.canvas.attrs(
-  // required for pointer events polyfill
-  { 'touch-action': 'none' },
-)`
-  display: block;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-`
+export const defaultProps = {
+  // The number of CSS pixels given for each cent on the scale.
+  // Keep in mind there are 100 cents between equally tempered semitones.
+  pixelsPerCent: 3,
+}
 
 class FrequencySlider extends Component {
-  static defaultProps = {
-    pixelsPerCent: 3,
-  }
-
-  canvasEl = null
-  snapRefId = null
-  state = {
-    panning: false,
-    panStart: null,
-    startFrequency: 0,
-    snapStart: null,
-    snapToFrequency: 0,
-  }
-
-  setCanvasRef = element => {
-    this.canvasEl = element
-    this.props.measureRef(element)
-  }
-
-  componentDidUpdate() {
-    this.renderGraphics()
-  }
+  static defaultProps = defaultProps
 
   render() {
-    const { onFrequencyChange } = this.props
-
-    return (
-      <Canvas
-        ref={this.setCanvasRef}
-        onPointerDown={onFrequencyChange && this.startPanning}
-        onPointerUp={onFrequencyChange && this.stopPanning}
-        onPointerCancel={onFrequencyChange && this.stopPanning}
-        onPointerOut={onFrequencyChange && this.stopPanning}
-        onPointerMove={onFrequencyChange && this.pan}
-      />
-    )
+    const { frequency, pixelsPerCent, theme, ...rest } = this.props
+    return <ResponsiveCanvas {...rest}>{this.renderToCanvas}</ResponsiveCanvas>
   }
 
-  startPanning = e => {
-    const { frequency } = this.props
+  renderToCanvas = canvas => {
+    const { width, height } = canvas
+    const ctx = canvas.getContext('2d')
 
-    if (this.snapRafId) {
-      cancelAnimationFrame(this.snapRafId)
-      this.snapRafId = undefined
-    }
-
-    this.setState({
-      panning: true,
-      panStart: e.nativeEvent.clientX,
-      startFrequency: frequency,
-    })
-  }
-
-  pan = e => {
-    const { panning, panStart, startFrequency } = this.state
-    const { onFrequencyChange, pixelsPerCent } = this.props
-
-    if (!panning) return
-
-    const panDelta = e.nativeEvent.clientX - panStart
-    const centDelta = -panDelta / pixelsPerCent
-    const newFrequency = addCents(startFrequency, centDelta)
-
-    onFrequencyChange(newFrequency)
-  }
-
-  stopPanning = () => {
-    const { panning } = this.state
-    if (!panning) return
-
-    this.setState((prevState, props) => {
-      const { frequency } = props
-      const snapToNote = nearestNote(frequency)
-      const snapToFrequency = frequencyOfNote(snapToNote)
-      return {
-        panning: false,
-        snapStart: performance.now(),
-        startFrequency: frequency,
-        snapToFrequency,
-      }
-    }, this.snap)
-  }
-
-  snap = () => {
-    const { panning, snapStart, startFrequency, snapToFrequency } = this.state
-    const { onFrequencyChange } = this.props
-    if (panning) return
-
-    const t = Math.min(
-      (performance.now() - snapStart) / (snapDuration * 1000),
-      1,
-    )
-
-    if (t < 1) {
-      const cents = deltaCents(snapToFrequency, startFrequency)
-      const newFrequency = addCents(startFrequency, easeElastic(t) * cents)
-      onFrequencyChange(newFrequency)
-      this.snapRafId = requestAnimationFrame(this.snap)
-    } else {
-      onFrequencyChange(snapToFrequency)
-    }
-  }
-
-  renderGraphics() {
-    const { canvasEl, props } = this
-    const { theme, contentRect } = props
-    if (!canvasEl) return
-
-    // To support hi-dpi screens, directly set the width and height
-    // of the canvas element to bounds scaled by the devicePixelRatio.
-    // The canvas CSS rules keep it fit to the CSS pixel layout, but
-    // during render we are drawing to a higher resolution canvas.
-    const { width, height } = deviceScaledBounds(contentRect.bounds)
-    canvasEl.width = width
-    canvasEl.height = height
-
-    const ctx = canvasEl.getContext('2d')
-    ctx.fillStyle = theme.info.background
+    ctx.fillStyle = this.props.theme.info.background
     ctx.fillRect(0, 0, width, height)
 
     this.renderScale(ctx, width, height)
@@ -154,22 +35,15 @@ class FrequencySlider extends Component {
   }
 
   renderScale(ctx, width, height) {
-    const {
-      frequency,
-      theme,
-      contentRect,
-      pixelsPerCent: cssPixelsPerCent,
-    } = this.props
+    const { frequency, theme, pixelsPerCent: cssPixelsPerCent } = this.props
 
     // No scale without a frequency
     if (!frequency) return
 
     // Determine how many cents fit in the width of the canvas.
-    // pixelsPerCent is in CSS pixels, so we need to rescale them
-    // to our actual canvas width.
-    const { width: cssWidth } = contentRect.bounds
-    const centsOnScale = cssWidth / cssPixelsPerCent
-    const pixelsPerCent = width / centsOnScale
+    // Rescale pixelsPerCent (in CSS pixels) to match our device pixels.
+    const pixelsPerCent = deviceScaled(cssPixelsPerCent)
+    const centsOnScale = width / pixelsPerCent
 
     // Measure which semitone is closest to center, how far from center
     // it is, and how many semitones are visible on each side
@@ -309,7 +183,7 @@ class FrequencySlider extends Component {
   }
 }
 
-export default withContentRect('bounds')(withTheme(FrequencySlider))
+export default withTheme(FrequencySlider)
 
 //
 // Utility funcitons
@@ -317,21 +191,6 @@ export default withContentRect('bounds')(withTheme(FrequencySlider))
 
 function lerp(t, min, max) {
   return min * (1 - t) + max * t
-}
-
-function deviceScaled(x) {
-  return x * window.devicePixelRatio
-}
-
-function deviceScaledBounds(bounds) {
-  return {
-    width:
-      Math.round(deviceScaled(bounds.right)) -
-      Math.round(deviceScaled(bounds.left)),
-    height:
-      Math.round(deviceScaled(bounds.bottom)) -
-      Math.round(deviceScaled(bounds.top)),
-  }
 }
 
 function strokeVertical(ctx, x, y1, y2) {
