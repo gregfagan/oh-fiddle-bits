@@ -64,6 +64,11 @@ class FrequencySlider extends Component {
     const y1 = height
     const y2 = height - tickLength
     for (let i = -numberOfTicksOnEachSide; i <= numberOfTicksOnEachSide; i++) {
+      const noteIndex = semitoneNearestCenter - i
+      const validNote = 0 <= noteIndex && noteIndex < notes.length
+      if (!validNote) continue
+      const note = notes[noteIndex]
+
       // Semitone Tick
       ctx.fillStyle = i === 0 ? theme.info.primary : theme.info.secondary
       ctx.strokeStyle = i === 0 ? theme.info.primary : theme.info.secondary
@@ -75,12 +80,11 @@ class FrequencySlider extends Component {
       //
       // The semitone label nearest to the center is moved up
       // and scaled based on its distance to the needle
-      const name = notes[semitoneNearestCenter - i]
       const t =
         i === 0 ? easeExpInOut(1 - Math.abs(centsFromCenterOfScreen / 50)) : 0
       const fontSize = lerp(t, 0.1, 0.3) * height
       const y = lerp(t, 0.71, 0.45) * height
-      this.renderNoteLabel(ctx, x, y, fontSize, name)
+      this.renderNoteLabel(ctx, x, y, fontSize, note)
 
       // 10 cent division ticks
       if (shouldDrawMinorTicks && i !== -numberOfTicksOnEachSide) {
