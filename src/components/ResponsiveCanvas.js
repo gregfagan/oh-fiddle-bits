@@ -43,6 +43,9 @@ class ResponsiveCanvas extends Component {
       // of the canvas element to bounds scaled by the devicePixelRatio.
       // The canvas CSS rules keep it fit to its container, but the
       // canvas' internal dimensions may be larger.
+      //
+      // TODO: this clears the canvas. move to didUpdate?
+      //
       const { width, height } = deviceScaledBounds(cssBounds)
       canvasEl.width = width
       canvasEl.height = height

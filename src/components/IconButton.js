@@ -5,7 +5,7 @@ const Graphic = styled.svg`
   height: 100%;
   cursor: ${props => (props.onClick ? 'pointer' : 'default')};
   --color: ${props => (props.on ? props.theme.active : props.theme.inactive)};
-  circle {
+  > circle {
     stroke: var(--color);
   }
 `

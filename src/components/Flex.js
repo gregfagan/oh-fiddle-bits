@@ -6,7 +6,7 @@ export default styled.div`
   display: flex;
 
   /* Grow down */
-  flex-flow: column;
+  flex-flow: ${props => (props.row ? 'row' : 'column')};
 
   /* Grow and shrink without a basis */
   flex: 1 1 0;

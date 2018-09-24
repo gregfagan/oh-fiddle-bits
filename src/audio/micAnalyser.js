@@ -1,4 +1,4 @@
-import { AudioContext, findFundamentalFrequency } from './util'
+import { AudioContext, findFundamentalFrequency } from './signal'
 
 export default async function create() {
   const audioContext = new AudioContext()

@@ -60,7 +60,7 @@ export default class ToneGenerator extends Component {
           <FrequencyInputSlider
             frequency={frequency}
             onFrequencyChange={this.setFrequency}
-            pixelsPerCent={1.4}
+            pixelsPerCent={0.75}
           />
         }
         controls={

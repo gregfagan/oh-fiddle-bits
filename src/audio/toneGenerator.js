@@ -1,4 +1,4 @@
-import { AudioContext } from './util'
+import { AudioContext } from './signal'
 
 export default function create() {
   const audioContext = new AudioContext()
