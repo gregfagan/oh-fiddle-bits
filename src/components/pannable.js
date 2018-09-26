@@ -12,14 +12,17 @@ export default function pannable(WrappedComponent) {
     'touch-action': 'none', // required for pointer events polyfill
   })`
     touch-action: none;
+    cursor: ${props => (props.isPanning ? 'grabbing' : 'grab')};
   `
 
   return class Pannable extends Component {
     static displayName = `Pannable${WrappedComponent.displayName ||
       WrappedComponent.name}`
 
-    panStart = null
-    panLast = null
+    state = {
+      panStart: null,
+      panLast: null,
+    }
 
     render() {
       const { onPanStart, onPan, onPanEnd, ...rest } = this.props
@@ -30,6 +33,7 @@ export default function pannable(WrappedComponent) {
           onPointerUp={this.stopPanning}
           onPointerCancel={this.stopPanning}
           onPointerOut={this.stopPanning}
+          isPanning={Boolean(this.state.panStart)}
           {...rest}
         />
       )
@@ -42,14 +46,13 @@ export default function pannable(WrappedComponent) {
         onPanStart()
       }
 
-      this.panStart = position(e)
+      this.setState({ panStart: position(e) })
     }
 
     pan = e => {
       const {
-        panStart,
-        panLast,
         props: { onPan },
+        state: { panStart, panLast },
       } = this
 
       const current = position(e)
@@ -62,13 +65,13 @@ export default function pannable(WrappedComponent) {
         onPan(delta)
       }
 
-      this.panLast = current
+      this.setState({ panLast: current })
     }
 
     stopPanning = e => {
       const {
-        panStart,
         props: { onPanEnd },
+        state: { panStart },
       } = this
 
       if (panStart && onPanEnd) {
@@ -80,8 +83,7 @@ export default function pannable(WrappedComponent) {
         onPanEnd(total)
       }
 
-      this.panStart = null
-      this.panLast = null
+      this.setState({ panStart: null, panLast: null })
     }
   }
 }
