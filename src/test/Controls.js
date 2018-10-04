@@ -6,12 +6,14 @@ import FrequencyInputSlider from '../ui/FrequencyInputSlider'
 import MicButton from '../ui/buttons/MicButton'
 import ToneButton from '../ui/buttons/ToneButton'
 import RecordButton from './RecordButton'
+import SamplerButton from './SamplerButton'
 
 import inputs from './inputs'
 
 const inputButtons = {
   [inputs.tone]: ToneButton,
   [inputs.mic]: MicButton,
+  [inputs.sample]: SamplerButton,
 }
 
 class InputButton extends PureComponent {
@@ -67,5 +69,17 @@ export const MicControls = ({ isRecording, onChange }) => (
   <Flex style={{ alignItems: 'center' }}>
     <RecordButton on={isRecording} onClick={onChange} />
     <ButtonLabel on={isRecording}>record</ButtonLabel>
+  </Flex>
+)
+
+export const SamplerControls = ({
+  samples,
+  currentSampleIndex,
+  setCurrentSample,
+}) => (
+  <Flex row>
+    {samples.map((sample, index) => (
+      <button onClick={() => setCurrentSample(index)}>sample {index}</button>
+    ))}
   </Flex>
 )

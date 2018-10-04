@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 
-import { Oscillator, Microphone } from '../audio'
-import { InputSelector, ToneControls, MicControls } from './Controls'
+import { Oscillator, Microphone, Sampler } from '../audio'
+import {
+  InputSelector,
+  ToneControls,
+  MicControls,
+  SamplerControls,
+} from './Controls'
 import AnalysedDisplay from './Display'
 
 import inputs from './inputs'
@@ -14,10 +19,10 @@ import inputs from './inputs'
 export default class TestAnalyser extends Component {
   state = {
     input: inputs.tone,
-    inputSampleId: null,
     toneFrequency: 440,
     isRecording: false,
     samples: [],
+    currentSampleIndex: null,
   }
 
   selectInput = input => this.setState({ input })
@@ -25,23 +30,28 @@ export default class TestAnalyser extends Component {
   toggleRecording = () =>
     this.setState(state => ({ isRecording: !state.isRecording }))
   saveSample = sample =>
-    this.setState(state => ({ samples: [...state.samples, sample] }))
+    this.setState(state => ({
+      samples: [...state.samples, sample],
+      currentSampleIndex: state.currentSampleIndex || 0,
+    }))
 
-  renderInputSelector = () => (
-    <InputSelector current={this.state.input} onChange={this.selectInput} />
+  renderDisplayWithControls = controls => (
+    <AnalysedDisplay
+      inputSelector={
+        <InputSelector current={this.state.input} onChange={this.selectInput} />
+      }
+      controls={controls}
+    />
   )
 
   renderOscillator = () => (
     <Oscillator frequency={this.state.toneFrequency}>
-      <AnalysedDisplay
-        inputSelector={this.renderInputSelector()}
-        controls={
-          <ToneControls
-            frequency={this.state.toneFrequency}
-            onChange={this.setToneFrequency}
-          />
-        }
-      />
+      {this.renderDisplayWithControls(
+        <ToneControls
+          frequency={this.state.toneFrequency}
+          onChange={this.setToneFrequency}
+        />,
+      )}
     </Oscillator>
   )
 
@@ -49,16 +59,21 @@ export default class TestAnalyser extends Component {
     <Microphone
       onRecordSample={this.state.isRecording ? this.saveSample : null}
     >
-      <AnalysedDisplay
-        inputSelector={this.renderInputSelector()}
-        controls={
-          <MicControls
-            isRecording={this.state.isRecording}
-            onChange={this.toggleRecording}
-          />
-        }
-      />
+      {this.renderDisplayWithControls(
+        <MicControls
+          isRecording={this.state.isRecording}
+          onChange={this.toggleRecording}
+        />,
+      )}
     </Microphone>
+  )
+
+  renderSampler = () => (
+    <Sampler sample={this.state.samples[this.state.currentSampleIndex]}>
+      {this.renderDisplayWithControls(
+        <SamplerControls samples={this.state.samples} />,
+      )}
+    </Sampler>
   )
 
   render() {
@@ -67,6 +82,8 @@ export default class TestAnalyser extends Component {
         return this.renderOscillator()
       case inputs.mic:
         return this.renderMicrophone()
+      case inputs.sample:
+        return this.renderSampler()
       default:
         return null
     }
