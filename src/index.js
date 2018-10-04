@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'production') {
   ReactDOM.render(<App />, document.getElementById('root'))
   registerServiceWorker()
 } else {
-  import('./test/components/TestAnalyser').then(({ default: TestAnalyser }) => {
+  import('./test/TestAnalyser').then(({ default: TestAnalyser }) => {
     ReactDOM.render(
       <App extraOptions={[{ name: 'test', view: TestAnalyser }]} />,
       document.getElementById('root'),

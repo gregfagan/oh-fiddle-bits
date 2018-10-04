@@ -1,3 +1,6 @@
-export { default as createToneGenerator } from './toneGenerator'
-export { default as createMicAnalyser } from './micAnalyser'
 export * from './note'
+
+export { default as Oscillator } from './nodes/Oscillator'
+export { default as Microphone } from './nodes/Microphone'
+export { default as Analyser } from './nodes/Analyser'
+export { default as Speakers } from './nodes/Speakers'

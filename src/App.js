@@ -2,9 +2,9 @@ import React from 'react'
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import theme from './theme'
 
-import Navigator from './components/Navigator'
-import Tuner from './components/Tuner'
-import ToneGenerator from './components/ToneGenerator'
+import Navigator from './ui/Navigator'
+import Tuner from './views/Tuner'
+import ToneGenerator from './views/ToneGenerator'
 
 const GlobalStyle = createGlobalStyle`
   ${props => props.theme.text.family.import}

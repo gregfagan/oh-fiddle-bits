@@ -2,8 +2,7 @@ export const AudioContext = window.AudioContext || window.webkitAudioContext
 
 // Adapted from https://developer.microsoft.com/en-us/microsoft-edge/testdrive/demos/webaudiotuner/
 // Use autocorrelation to find fundamental frequency of audio signal
-const normalizeByte = byte => (byte - 128) / 128
-export function findFundamentalFrequency(buffer, sampleRate) {
+export function autocorrelatePitch(buffer, sampleRate) {
   const minK = Math.round(sampleRate / 4186) // C8
   const maxK = Math.round(sampleRate / 123.5) // B2
   const n = buffer.length - maxK // correlate the whole buffer
@@ -40,66 +39,39 @@ export function findFundamentalFrequency(buffer, sampleRate) {
   }
 }
 
-export function normalize(data) {
-  const { min, max } = data.reduce(
-    (prev, current) => {
-      return {
-        min: current < prev.min ? current : prev.min,
-        max: current > prev.max ? current : prev.max,
-      }
-    },
-    {
-      min: Infinity,
-      max: -Infinity,
-    },
-  )
-  if (min === max) return undefined
-  return data.map(current => (min - current) / (min - max))
+export const normalizeByte = byte => (byte - 128) / 128
+
+// Normalize the numbers in a buffer. Loops twice, once to find
+// the min and max and the second time to do the normalization.
+export function normalize(from, to) {
+  let min = Infinity
+  let max = -Infinity
+
+  for (let i = 0; i < from.length; i++) {
+    if (from[i] < min) min = from[i]
+    if (from[i] > max) max = from[i]
+  }
+
+  for (let i = 0; i < to.length; i++) {
+    to[i] = (min - from[i]) / (min - max)
+  }
 }
 
-// function average(data, cutoff) {
-//   const { min, max } = data.reduce(
-//     (prev, current) => {
-//       return {
-//         min: current < prev.min ? current : prev.min,
-//         max: current > prev.max ? current : prev.max,
-//       }
-//     },
-//     {
-//       min: Infinity,
-//       max: -Infinity,
-//     },
-//   )
-//   if (min === max) return undefined
-//   const normalize = current => {
-//     const n = (min - current) / (min - max)
-//     return n < cutoff ? 0 : n
-//   }
-//   const total = data.reduce((prev, current) => prev + normalize(current), 0)
-//   return data.reduce((prev, current, i) => {
-//     const freq = i
-//     const ratio = normalize(current) / total
-//     return prev + freq * ratio
-//   }, 0)
-// }
+// Make the values positive by shifting them
+// up by the smallest one
+export function rebase(from, to) {
+  let min = Infinity
 
-// function findMaxSpan(data) {
-//   const max = { start: -1, end: -1, value: -Infinity }
-//   for (let i = 0; i < data.length; ++i) {
-//     if (data[i] > max.value) {
-//       max.start = i
-//       max.end = i
-//       max.value = data[i]
-//     } else if (max.start >= 0 && max.value > 0 && data[i] === max.value) {
-//       max.end = i
-//     }
-//   }
+  for (let i = 0; i < from.length; i++) {
+    if (from[i] < min) min = from[i]
+  }
 
-//   // console.log(`final max ${max.value} from ${max.start} to ${max.end}`)
-//   return max
-// }
+  for (let i = 0; i < to.length; i++) {
+    to[i] = from[i] - min
+  }
+}
 
-export function indexOfMax(data) {
+function indexOfMax(data) {
   return data.reduce(
     (prevIndex, currentValue, index) =>
       currentValue > data[prevIndex] ? index : prevIndex,
@@ -114,7 +86,7 @@ export function indexOfMax(data) {
 //
 // see http://fourier.eng.hmc.edu/e176/lectures/NM/node25.html
 //
-export function parabolicInterpolateMax(index, values) {
+function parabolicInterpolateMax(index, values) {
   const prevIndex = index - 1
   const nextIndex = index + 1
 
@@ -140,10 +112,10 @@ export function parabolicInterpolateMax(index, values) {
   return max
 }
 
-export const sum = (a, b) => a + b
-export const product = (a, b) => a * b
+const sum = (a, b) => a + b
+const product = (a, b) => a * b
 
-export function harmonicSpectrum(data, numHarmonics, operation = sum) {
+function harmonicSpectrum(data, numHarmonics, operation) {
   const result = [...data]
 
   for (let i = 2; i <= numHarmonics; i++) {
@@ -162,4 +134,27 @@ function downsample(data, ratio) {
     result[i] = data[i * ratio]
   }
   return result
+}
+
+export function harmonicSumSpectrum(
+  normalizedFrequencyData,
+  windowSize,
+  numHarmonics,
+) {
+  const spectrum = harmonicSpectrum(normalizedFrequencyData, numHarmonics, sum)
+  const max = indexOfMax(spectrum)
+  const interpolatedMax = parabolicInterpolateMax(max, normalizedFrequencyData)
+  return interpolatedMax * windowSize
+}
+
+export function harmonicProductSpectrum(
+  normalizedFrequencyData,
+  rebasedFrequencyData,
+  windowSize,
+  numHarmonics,
+) {
+  const spectrum = harmonicSpectrum(rebasedFrequencyData, numHarmonics, product)
+  const max = indexOfMax(spectrum)
+  const interpolatedMax = parabolicInterpolateMax(max, normalizedFrequencyData)
+  return interpolatedMax * windowSize
 }

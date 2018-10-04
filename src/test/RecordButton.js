@@ -1,6 +1,6 @@
 import React from 'react'
 
-import IconButton from '../../components/IconButton'
+import IconButton from '../ui/buttons/IconButton'
 
 export default props => (
   <IconButton {...props}>

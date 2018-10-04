@@ -17,10 +17,15 @@ const durationMS = 600
 //
 class WaveForm extends Component {
   state = { lastToggle: -Infinity }
+  rafId = null
 
   componentDidUpdate(prevProps) {
     if (this.props.on !== prevProps.on)
       this.setState({ lastToggle: performance.now() }, this.animate)
+  }
+
+  componentWillUnmount() {
+    if (this.rafId) cancelAnimationFrame(this.rafId)
   }
 
   // Normalized animation time [0, 1]
@@ -33,7 +38,7 @@ class WaveForm extends Component {
   animate = () => {
     this.forceUpdate()
     if (this.t() < 1) {
-      requestAnimationFrame(this.animate)
+      this.rafId = requestAnimationFrame(this.animate)
     }
   }
 

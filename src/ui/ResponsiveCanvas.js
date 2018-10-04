@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import { withContentRect } from 'react-measure'
+import Flex from './Flex'
 
 //
 // A <canvas> that responsively fills its container
@@ -55,7 +56,11 @@ class ResponsiveCanvas extends Component {
       }
     }
 
-    return <Canvas ref={setCanvasRef} {...rest} />
+    return (
+      <Flex {...rest}>
+        <Canvas ref={setCanvasRef} />
+      </Flex>
+    )
   }
 }
 

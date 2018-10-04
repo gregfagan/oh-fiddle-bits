@@ -1,11 +1,7 @@
 import React, { Component } from 'react'
 import { withTheme } from 'styled-components'
-import ResponsiveCanvas, {
-  deviceScaled,
-} from '../../components/ResponsiveCanvas'
-
-// normalized in range [-1, 1]
-const normalized = byte => (byte - 128) / 128
+import ResponsiveCanvas, { deviceScaled } from '../ui/ResponsiveCanvas'
+import { normalizeByte } from '../audio/signal'
 
 class TimeGraph extends Component {
   render() {
@@ -28,7 +24,7 @@ class TimeGraph extends Component {
     let start = undefined
     for (let i = halfBins; i < data.length - halfBins; i++) {
       const value = data[i]
-      const meetsThreshold = Math.abs(normalized(value)) < zeroThreshold
+      const meetsThreshold = Math.abs(normalizeByte(value)) < zeroThreshold
       if (meetsThreshold && data[i + 1] < value) {
         start = i - halfBins
         break
@@ -42,7 +38,7 @@ class TimeGraph extends Component {
     ctx.lineWidth = deviceScaled(1.5)
     ctx.beginPath()
     for (let i = start; i < start + bins; i++) {
-      const value = normalized(data[i])
+      const value = normalizeByte(data[i])
       const x = (i - start) * span
       const y = height * (1 / 2 + value / 3)
       if (i === 0) {

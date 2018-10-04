@@ -7,7 +7,7 @@ const Container = styled(Flex)`
   grid-template-rows: 50% 50%;
 `
 
-const Display = styled.figure`
+const Display = styled(Flex)`
   position: relative;
   background: ${props => props.theme.info.background};
 `
@@ -37,7 +37,7 @@ const Controls = styled(Flex)`
 
 export default ({ display, controls }) => (
   <Container>
-    <Display>
+    <Display as="figure">
       <Shadow />
       {display}
     </Display>

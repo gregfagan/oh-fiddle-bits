@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { withTheme } from 'styled-components'
-import ResponsiveCanvas from '../../components/ResponsiveCanvas'
+import ResponsiveCanvas from '../ui/ResponsiveCanvas'
 
 class FrequencyGraph extends Component {
   render() {
@@ -22,7 +22,7 @@ class FrequencyGraph extends Component {
     ctx.fillStyle = theme.info.primary
     for (let i = 0; i < bins; i++) {
       const value = data[i]
-      const barHeight = height * (value / 255)
+      const barHeight = height * value
       const x = i * span
       const y = height - barHeight
       ctx.fillRect(x, y, span, barHeight)
