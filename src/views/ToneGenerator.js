@@ -21,7 +21,7 @@ export default class ToneGenerator extends Component {
     return (
       <>
         <Oscillator frequency={frequency}>
-          {isPlaying && <Speakers />}
+          {source => (isPlaying ? <Speakers source={source} /> : null)}
         </Oscillator>
 
         <ControlledDisplay

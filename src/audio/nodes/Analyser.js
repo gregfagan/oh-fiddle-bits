@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import { PureComponent } from 'react'
 import { normalize, rebase } from '../signal'
 
 export default class Analyser extends PureComponent {
@@ -10,8 +10,8 @@ export default class Analyser extends PureComponent {
   }
 
   // This component uses mutable state so as not to be constantly
-  // creating huge buffers. It doesn't render UI but copies data
-  // to child props.
+  // creating huge buffers. It doesn't render UI but calls the
+  // children as a render prop with data.
   node = null
   buffers = {
     time: [],
@@ -92,17 +92,15 @@ export default class Analyser extends PureComponent {
 
   render() {
     const {
-      props: { children },
+      props: { children: renderAudioData },
       node,
       buffers: { time, frequency },
       windowSize,
     } = this
     const sampleRate = node && node.context.sampleRate
-    return React.Children.map(
-      children,
-      child =>
-        child &&
-        React.cloneElement(child, { time, frequency, sampleRate, windowSize }),
+    return (
+      renderAudioData &&
+      renderAudioData(time, frequency, sampleRate, windowSize)
     )
   }
 }

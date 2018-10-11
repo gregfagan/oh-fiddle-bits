@@ -72,14 +72,31 @@ export const MicControls = ({ isRecording, onChange }) => (
   </Flex>
 )
 
+const SampleButton = styled.button`
+  margin: 5px;
+  padding: 5px;
+  cursor: pointer;
+  color: ${props => (props.active ? props.theme.active : props.theme.inactive)};
+  border: 1px solid
+    ${props => (props.active ? props.theme.active : props.theme.inactive)};
+  background: none;
+  outline: none;
+`
+
 export const SamplerControls = ({
   samples,
   currentSampleIndex,
   setCurrentSample,
 }) => (
-  <Flex row>
+  <Flex>
     {samples.map((sample, index) => (
-      <button onClick={() => setCurrentSample(index)}>sample {index}</button>
+      <SampleButton
+        key={index}
+        onClick={() => setCurrentSample(index)}
+        active={index === currentSampleIndex}
+      >
+        sample {index}
+      </SampleButton>
     ))}
   </Flex>
 )

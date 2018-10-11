@@ -11,22 +11,11 @@ import Flex from '../ui/Flex'
 import FrequencySlider from '../ui/FrequencySlider'
 import FrequencyGraph from './FrequencyGraph'
 import TimeGraph from './TimeGraph'
-import { Analyser } from '../audio'
 
-const fftSize = 2 ** 15 // min 2 ** 5 max 2 ** 15
-const maxFrequency = 6000
 const hssHarmonics = 5
 const hpsHarmonics = 3
 
-export default function AnalysedDisplay({ source, ...rest }) {
-  return (
-    <Analyser source={source} fftSize={fftSize} maxFrequency={maxFrequency}>
-      <Display {...rest} />
-    </Analyser>
-  )
-}
-
-function Display({
+export default function Display({
   inputSelector,
   controls,
   time,

@@ -30,9 +30,16 @@ export default class Tuner extends PureComponent {
 
 const Output = () => (
   <Microphone>
-    <Analyser>
-      <AnalysedFrequencySlider />
-    </Analyser>
+    {source => (
+      <Analyser source={source}>
+        {(time, frequency, sampleRate, windowSize) => (
+          <AnalysedFrequencySlider
+            frequency={frequency}
+            windowSize={windowSize}
+          />
+        )}
+      </Analyser>
+    )}
   </Microphone>
 )
 
