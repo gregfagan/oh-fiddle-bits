@@ -10,6 +10,7 @@ import {
 import Display from './Display'
 
 import inputs from './inputs'
+import * as storage from './storage'
 
 //
 // A view with a variety of input streams and
@@ -21,7 +22,7 @@ const maxFrequency = 6000
 
 export default class TestAnalyser extends Component {
   state = {
-    input: inputs.mic,
+    input: inputs.tone,
     toneFrequency: 440,
     isRecording: false,
     samples: [],
@@ -29,16 +30,37 @@ export default class TestAnalyser extends Component {
     speakers: false,
   }
 
+  componentDidMount() {
+    storage
+      .load()
+      .then(storedState => this.setState(storedState))
+      .catch(error => console.error('could not load stored state', error))
+  }
+
+  componentDidUpdate() {
+    const { input, toneFrequency, speakers, currentSampleIndex } = this.state
+    storage.saveSettings({ input, toneFrequency, speakers, currentSampleIndex })
+  }
+
   selectInput = input => this.setState({ input })
+
   setToneFrequency = toneFrequency => this.setState({ toneFrequency })
+
   toggleRecording = () =>
     this.setState(state => ({ isRecording: !state.isRecording }))
+
   saveSample = sample =>
-    this.setState(state => ({
-      samples: [...state.samples, sample],
-      currentSampleIndex: state.samples.length,
-      input: inputs.sample,
-    }))
+    storage
+      .saveSample(sample)
+      .then(() => {
+        this.setState(state => ({
+          samples: [...state.samples, sample],
+          currentSampleIndex: state.samples.length,
+          input: inputs.sample,
+        }))
+      })
+      .catch(error => console.error('could not save sample', error))
+
   setCurrentSample = sampleIndex =>
     this.setState({ currentSampleIndex: sampleIndex })
 
