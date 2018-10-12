@@ -81,6 +81,11 @@ const SampleButton = styled.button`
     ${props => (props.active ? props.theme.active : props.theme.inactive)};
   background: none;
   outline: none;
+  flex: 0 0 auto;
+`
+
+const SampleList = styled(Flex)`
+  overflow-y: scroll;
 `
 
 export const SamplerControls = ({
@@ -88,7 +93,7 @@ export const SamplerControls = ({
   currentSampleIndex,
   setCurrentSample,
 }) => (
-  <Flex>
+  <SampleList>
     {samples.map((sample, index) => (
       <SampleButton
         key={index}
@@ -98,5 +103,5 @@ export const SamplerControls = ({
         sample {index}
       </SampleButton>
     ))}
-  </Flex>
+  </SampleList>
 )
