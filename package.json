@@ -10,15 +10,15 @@
   "dependencies": {
     "cross-env": "^5.2.0",
     "d3-ease": "^1.0.5",
-    "gh-pages": "^1.2.0",
-    "husky": "^0.14.3",
-    "lint-staged": "^7.2.0",
-    "prettier": "^1.14.2",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
-    "react-measure": "^2.1.0",
-    "react-scripts": "2.0.0-next.a671462c",
-    "styled-components": "^4.0.0-beta.1"
+    "gh-pages": "2.0.1",
+    "husky": "1.1.4",
+    "lint-staged": "8.0.5",
+    "prettier": "^1.15.2",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-measure": "^2.1.3",
+    "react-scripts": "^2.1.1",
+    "styled-components": "^4.1.1"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
@@ -27,7 +27,6 @@
     ]
   },
   "scripts": {
-    "precommit": "lint-staged",
     "predeploy": "npm run build",
     "start": "cross-env-shell BROWSER=none react-scripts start",
     "build": "react-scripts build",
@@ -35,16 +34,15 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "browserslist": {
-    "development": [
-      "last 2 chrome versions",
-      "last 2 firefox versions",
-      "last 2 edge versions"
-    ],
-    "production": [
-      ">0.25%",
-      "not op_mini all",
-      "ie 11"
-    ]
-  }
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

@@ -5,7 +5,7 @@ import { ReactComponent as MicIcon } from './mic.svg'
 
 const FilledMicIcon = styled(MicIcon)`
   path {
-    fill: var(--color);
+    fill: var(--color) !important;
   }
 `
 
