@@ -85,7 +85,7 @@ const SampleButton = styled.button`
 `
 
 const SampleList = styled(Flex)`
-  overflow-y: scroll;
+  overflow-y: auto;
 `
 
 export const SamplerControls = ({

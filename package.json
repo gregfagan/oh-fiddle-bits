@@ -8,6 +8,7 @@
   "version": "0.2.0",
   "private": true,
   "dependencies": {
+    "audio-recorder-polyfill": "^0.1.3",
     "cross-env": "^5.2.0",
     "d3-ease": "^1.0.5",
     "gh-pages": "2.0.1",
